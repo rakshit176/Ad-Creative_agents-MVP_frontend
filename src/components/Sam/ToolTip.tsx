@@ -1,0 +1,70 @@
+// @ts-ignore
+import React, { useContext } from "react";
+import { AnnotationProps } from "./helpers/Interface";
+import AppContext from "./hooks/createContext";
+
+interface ToolTipProps {
+  isHoverToolTip: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
+  allText: [allText: any, setAllText: any];
+  hasClicked: boolean;
+  annotations: Array<AnnotationProps>;
+}
+
+const ToolTip = ({
+  hasClicked,
+  annotations,
+  isHoverToolTip: [isHoverToolTip],
+  allText: [allText],
+}: ToolTipProps) => {
+  const {
+    segmentTypes: [segmentTypes],
+    clicks: [clicks],
+    eraserText: [],
+    isErasing: [isErasing],
+    isMultiMaskMode: [isMultiMaskMode],
+  } = useContext(AppContext)!;
+
+  const isMobile = window.innerWidth < 768;
+  const getText = () => {
+    if (isErasing) return null;
+    if (isMultiMaskMode) {
+      if (clicks?.length)
+        return "Move your cursor on or off the image to expand or collapse the layers.";
+      return "The Model predicts multiple mask possibilities with a single click. Select an object to start.";
+    }
+    if (segmentTypes === "Click") {
+      if (isMobile) {
+        if (hasClicked && clicks?.length)
+          return "Cut out the selected object using the Cut-out tool.";
+        return "Select any object, SAM is running in the browser.";
+      }
+      if (hasClicked && clicks?.length)
+        return "Cut out the selected object";
+      if (isHoverToolTip)
+        return "Select an area to remove or replace";
+    }
+    if (segmentTypes === "Box") {
+      if (annotations.length) return "Refine by adding or subtracting points.";
+      return "Draw a box around an object.";
+    }
+    if (segmentTypes === "All") {
+      return allText;
+    }
+    return null;
+  };
+  return (
+    <>
+      <div
+        className={`z-40 flex md:h-8 h-14 mt-2 md:mt-6 w-11/12 items-center top-[7%] md:w-full justify-center ${
+          !!getText() || "invisible"
+        }`}
+      >
+        <div className="flex gap-1 p-2 bg-highLightBg rounded-lg w-fit">
+          {getText()}
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default ToolTip;

@@ -1,0 +1,6 @@
+.colourGrade {
+    background: linear-gradient(90deg, #0D171F, #00ACD1);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
